@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kết thúc ván chơi</title>
+</head>
+<body>
+    <h2>Kết thúc ván!</h2>
+    <h3>Người thắng: {{ winner }}</h3>
+    <h4>Bài player 0 còn lại: {{ hand0 }}</h4>
+    <h4>Bài player 1 còn lại: {{ hand1 }}</h4>
+    <h4>Lịch sử nước đi:</h4>
+    <ul>
+    {% for move in history %}
+        <li>Player {{ move.turn }}: {{ move.pos }} - {{ move.color }}</li>
+    {% endfor %}
+    </ul>
+    <br>
+    <a href="{{ url_for('reset') }}">Chơi lại</a>
+</body>
+</html>
