@@ -8,7 +8,9 @@ import numpy as np
 app = Flask(__name__)
 app.secret_key = 'QuocAnhtapcode'
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CUR_DIR = os.path.dirname(os.path.abspath(__file__))
+
+BASE_DIR = os.path.abspath(os.path.join(CUR_DIR, ".."))
 
 model_files = [
     os.path.join(BASE_DIR, "penguinparty_RandomForest.pkl"),

@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ván chơi Penguin Party</title>
+    <title>Penguin Party Game</title>
 </head>
 <body>
-    <h2>Đến lượt người chơi {{ turn }}</h2>
-    <h3>Bài trên tay: {{ hand }}</h3>
-    <h4>Lịch sử nước đi:</h4>
+    <h2>Player {{ turn }}'s Turn</h2>
+    <h3>Cards in hand: {{ hand }}</h3>
+    <h4>Move history:</h4>
     <ul>
     {% for move in history %}
         <li>Player {{ move.turn }}: {{ move.pos }} - {{ move.color }}</li>
     {% endfor %}
     </ul>
-    <h3>Các nước đi hợp lệ và điểm số dự báo:</h3>
+    <h3>Legal moves and predicted scores:</h3>
     <form method="post">
     <table border="1">
         <tr>
-            <th>Vị trí</th><th>Màu</th>
+            <th>Position</th><th>Color</th>
             {% for name in model_names %}
             <th>{{ name }} (%)</th>
             {% endfor %}
-            <th>Chọn</th>
+            <th>Select</th>
         </tr>
         {% for m in move_scores %}
         <tr>
@@ -30,7 +30,7 @@
             <td>{{ "%.1f"|format(m.scores[name]) }}%</td>
             {% endfor %}
             <td>
-                <button name="pos" value="{{ m.pos }}" type="submit" formaction="?color={{ m.color }}">Chọn</button>
+                <button name="pos" value="{{ m.pos }}" type="submit" formaction="?color={{ m.color }}">Select</button>
                 <input type="hidden" name="color" value="{{ m.color }}">
             </td>
         </tr>
@@ -39,6 +39,6 @@
 
     </form>
     <br>
-    <a href="{{ url_for('reset') }}">Reset ván chơi</a>
+    <a href="{{ url_for('reset') }}">Reset game</a>
 </body>
 </html>
