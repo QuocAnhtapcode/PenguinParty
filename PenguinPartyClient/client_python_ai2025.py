@@ -7,77 +7,78 @@ def messageHandling(json_message, board_list, hand_list):
     append = "}\n"
     Connect = "\"From\":\"Client\",\"To\":\"Server\""
 
-    # Nhận biết giai đoạn bắt đầu - xác nhận là người chơi mới
+    # Identify the start phase - confirm as a new player
     if(json_message["Type"] == "ConnectionStart"):
         Type = "\"Type\":\"PlayerName\","
-        name = "\"Name\":\"{}\",".format("TajimaLab") # Gửi tên client cho server
+        name = "\"Name\":\"{}\",".format("TajimaLab")  # Send client name to server
         message = head + Type + name + Connect + append
         s.send(message.encode("utf-8"))
     
-    # Server xác nhận đã nhận tên, game bắt đầu
+    # Server confirms receipt of player name, game starts
     if(json_message["Type"] == "NameReceived"):
-        print("Bắt đầu game!")
+        print("Game started!")
 
-    # Cập nhật trạng thái bàn chơi từ server (vị trí các lá bài trên bàn)
+    # Update board state received from server (current card positions)
     if(json_message["Type"] == "BoardInfo"):
         board_list = json_message["Cardlist"]
 
-    # Cập nhật các lá bài trên tay từ server
+    # Update hand cards received from server
     if(json_message["Type"] == "HandInfo"):
         hand_list = json_message["Cardlist"]
 
-    # Khi server yêu cầu gửi đánh giá (Evaluation)
+    # When server requests an Evaluation
     if(json_message["Type"] == "DoPlay"):
         Type = "\"Type\":\"Evaluation\","
-        # Tính toán giá trị đánh giá cho từng màu (sử dụng hàm bên file ai.py)
+        # Use AI to evaluate (call new Evaluation in ai.py)
+        evals = ai.Evaluation(board_list, hand_list, turn=0)
         evaluation = ""
-        for c in ai.Evaluation():
-            evaluation += "\"{}\":\"{}\",".format(c[0], c[1])
+        for color, score in evals:
+            evaluation += "\"{}\":\"{}\",".format(color, score)
         message = head + Type + evaluation + Connect + append
         s.send(message.encode("utf-8"))
         
-    # Khi server báo đã nhận đánh giá, đến lượt chọn vị trí và lá bài để đánh
+    # When server acknowledges evaluation, it's time to select a move
     if(json_message["Type"] == "Accept"):
-        position, card = ai.RandomPlay(board_list, hand_list)
-        print("Đánh lá bài", card, "vào vị trí", position)
+        position, card = ai.PlayCard(board_list, hand_list, turn=0)
+        print("Play card", card, "at position", position)
         Position = "\"Position\":\"{}\",".format(position)
         Card = "\"Card\":\"{}\",".format(card)
         Type = "\"Type\":\"Play\","
         message = head + Type + Position + Card + Connect + append
         s.send(message.encode("utf-8"))
 
-    # Khi nhận thông báo kết thúc game
+    # When game ends
     if(json_message["Type"] == "GameEnd"):
         message = "END"
     
     return message, board_list, hand_list
 
 if __name__ == "__main__":
-    # Kết nối đến server game (chạy trên localhost, port 12052)
+    # Connect to the game server (localhost, port 12052)
     ip = "localhost"
     port = 12052
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((ip, port))
-    print("Đã kết nối tới server! IP: {} Port: {}".format(ip, str(port)))
+    print("Connected to server! IP: {} Port: {}".format(ip, str(port)))
 
-    # Bắt đầu vòng lặp chơi game
+    # Start the main game loop
     message = ""
     buffer_str = ""
     board_list = []
     hand_list = []
     while message != "END":
-        # Nhận dữ liệu từ server (có thể nhận nhiều message cùng lúc)
+        # Receive data from server (may include multiple messages at once)
         receive = s.recv(4096).decode()
         buffer_str += str(receive)
         ln = buffer_str.find("\n")
-        # Tách từng message theo ký tự xuống dòng
+        # Split messages by newline character
         while ln != -1:
             remessage = buffer_str[:ln]
             json_message = json.loads(remessage)
-            # Xử lý message và cập nhật lại trạng thái bàn chơi/lá bài
+            # Process message and update board/hand state
             message, board_list, hand_list = messageHandling(json_message, board_list, hand_list)
             buffer_str = buffer_str[ln+1:]
             ln = buffer_str.find("\n")
-        time.sleep(0.1) # Có thể tăng lên nếu muốn chạy chậm lại cho dễ quan sát
+        time.sleep(0.1) # Increase if you want the game to play slower for observation
             
-    s.close() # Đóng kết nối khi game kết thúc
+    s.close() # Close connection when game ends
