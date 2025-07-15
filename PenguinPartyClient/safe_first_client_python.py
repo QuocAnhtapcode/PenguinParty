@@ -1,5 +1,5 @@
 import socket,json,time
-import ai
+import safe_first_ai
 
 def messageHandling(json_message,board_list,hand_list):
     message = ""
@@ -31,14 +31,14 @@ def messageHandling(json_message,board_list,hand_list):
         
         #評価値を算出
         evaluation = ""
-        for c in ai.Evaluation(board_list, hand_list):
+        for c in safe_first_ai.Evaluation(board_list, hand_list):
             evaluation += "\"{}\":\"{}\",".format(c[0], c[1])
 
         message = head + Type + evaluation + Connect + append
         s.send(message.encode("utf-8"))
         
     if(json_message["Type"]=="Accept"):
-        position, card = ai.RandomPlay(board_list,hand_list)
+        position, card = safe_first_ai.RandomPlay(board_list,hand_list)
         print(position,card)
         Position = "\"Position\":\"{}\",".format(position)
         Card = "\"Card\":\"{}\",".format(card)

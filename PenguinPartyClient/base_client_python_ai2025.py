@@ -1,5 +1,5 @@
 import socket,json,time
-import ai
+import base_ai
 
 def messageHandling(json_message,board_list,hand_list):
     message = ""
@@ -10,7 +10,7 @@ def messageHandling(json_message,board_list,hand_list):
     #先攻か後攻か判別
     if(json_message["Type"] == "ConnectionStart"):
         Type = "\"Type\":\"PlayerName\","
-        name = "\"Name\":\"{}\",".format("QuocAnh")
+        name = "\"Name\":\"{}\",".format("TajimaLab")
         message = head + Type + name + Connect + append
         s.send(message.encode("utf-8"))
     
@@ -31,14 +31,14 @@ def messageHandling(json_message,board_list,hand_list):
         
         #評価値を算出
         evaluation = ""
-        for c in ai.Evaluation(board_list, hand_list):
-            evaluation += "\"{}\":\"{}\",".format(c[0], c[1])
-
+        for c in base_ai.Evaluation():
+            evaluation += "\"{}\":\"{}\",".format(c[0],c[1])
+            
         message = head + Type + evaluation + Connect + append
         s.send(message.encode("utf-8"))
         
     if(json_message["Type"]=="Accept"):
-        position, card = ai.RandomPlay(board_list,hand_list)
+        position, card = base_ai.RandomPlay(board_list,hand_list)
         print(position,card)
         Position = "\"Position\":\"{}\",".format(position)
         Card = "\"Card\":\"{}\",".format(card)

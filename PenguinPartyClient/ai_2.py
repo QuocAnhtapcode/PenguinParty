@@ -4,7 +4,7 @@ import os
 import random
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(CUR_DIR, "new_penguinparty_LogisticRegression.pkl")
+MODEL_PATH = os.path.join(CUR_DIR, "new_penguinparty_DecisionTree.pkl")
 
 model = joblib.load(MODEL_PATH)
 
